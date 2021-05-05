@@ -14,17 +14,23 @@ namespace SerialComm
     {
 
         SerialPort serialPort;
-        public string delimiter;
+        public string Delimiter { get; set; }
+        public string PortName { get; set; }
+
 
         public SerialCommModule()
         {
-            delimiter = "\r";
+            Delimiter = "\r";
         }
 
+        //ポートオープン
         public int OpenPort(string portName, int baudRate)
         {
+            PortName = portName;
+
+
             serialPort = new SerialPort();
-            serialPort.PortName = portName;
+            serialPort.PortName = PortName;
             serialPort.BaudRate = baudRate;
             serialPort.DataBits = 8;
             serialPort.Parity = Parity.None;
@@ -43,6 +49,7 @@ namespace SerialComm
             return 0;
         }
 
+        //ポートクローズ
         public int ClosePort()
         {
             serialPort.Close();
@@ -50,6 +57,7 @@ namespace SerialComm
             return 0;
         }
 
+        //データ送信
         public int ByteWrite(List<byte> data)
         {
 
@@ -57,12 +65,13 @@ namespace SerialComm
             if (serialPort.IsOpen)
             {
                 serialPort.Write(dataArray, 0, data.Count());
-                serialPort.Write(delimiter);
+                serialPort.Write(Delimiter);
                 return 0;
             }
             return -1;
         }
 
+        //データ受信
         public List<byte> ByteRead()
         {
             List<byte> retData = new List<byte>();
@@ -70,7 +79,7 @@ namespace SerialComm
             if (serialPort.IsOpen)
             {
                 var recvData = new Byte[1];
-                while (recvData[0] != delimiter[0] && serialPort.ReadBufferSize != 0)
+                while (recvData[0] != Delimiter[0] && serialPort.ReadBufferSize != 0)
                 {
                     serialPort.Read(recvData, 0, 1);
                     retData.Add(recvData[0]);
@@ -110,6 +119,7 @@ namespace SerialComm
             }
             return 0;
         }
+
         //ポートリストを返す
         public List<string> GetPortList()
         {
