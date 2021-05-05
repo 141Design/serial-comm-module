@@ -52,6 +52,7 @@ namespace SerialComm
 
         public int ByteWrite(List<byte> data)
         {
+
             Byte[] dataArray = data.ToArray();
             if (serialPort.IsOpen)
             {
@@ -65,17 +66,50 @@ namespace SerialComm
         public List<byte> ByteRead()
         {
             List<byte> retData = new List<byte>();
-            Byte[] recvData = new Byte[serialPort.BytesToRead];
-            serialPort.Read(recvData, 0, recvData.GetLength(0));
-            retData = recvData.ToList();
+            
+            if (serialPort.IsOpen)
+            {
+                var recvData = new Byte[1];
+                while (recvData[0] != delimiter[0] && serialPort.ReadBufferSize != 0)
+                {
+                    serialPort.Read(recvData, 0, 1);
+                    retData.Add(recvData[0]);
+                }
+            }
             return retData;
         }
+
+        //入出力バッファをクリアする
         public int Clear()
         {
-            
-            return 0;
+            if (serialPort.IsOpen)
+            {
+                serialPort.DiscardInBuffer();
+                serialPort.DiscardOutBuffer();
+                return 0;
+            }
+            return -1;
         }
 
+        //入力バッファをクリアする
+        public int ClearInBuffer()
+        {
+            if (serialPort.IsOpen)
+            {
+                serialPort.DiscardInBuffer();
+            }
+                return 0;
+        }
+
+        //出力バッファをクリアする
+        public int ClearOutBuffer()
+        {
+            if (serialPort.IsOpen)
+            {
+                serialPort.DiscardOutBuffer();
+            }
+            return 0;
+        }
         //ポートリストを返す
         public List<string> GetPortList()
         {
